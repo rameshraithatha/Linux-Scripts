@@ -1,0 +1,161 @@
+#!/bin/bash
+
+
+
+###############################################################################
+#---------------------------------pingip--------------------------------------#
+#Created by Ramesh Raithatha                                                  #
+#Date : 8 October, 2012                                                       #
+#                                                                             #
+#Description : This bash script pings the provided IP/Network                 #
+#                                                                             #
+#USE : pingip IP_address / Network                                            #
+#                                                                             #
+#Example : pingip 192.168.56.0                                                #
+#                                                                             #
+###############################################################################
+
+
+
+
+
+
+i=1       # Counter for first parameter
+count=1	  # Counter for second parameter	
+echo $1 > .ip1.txt
+while [ `cut -d. -f $i .ip1.txt` ]
+do
+	a[$i]=`cut -d. -f $i .ip1.txt`
+	#echo $i--${a[$i]}
+	(( i=$i + 1 ))
+done
+
+if (( $2 ))
+then
+	echo $1 > .ip2.txt
+	while [ `cut -d. -f $i .ip2.txt` ]
+	do
+		b[$i]=`cut -d. -f $i .ip2.txt`
+		#echo $i--${a[$i]}
+		(( i=$i + 1 ))
+	done
+fi
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------The above lines cuts the IP's into bytes and assigns it to a variable-------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+pingip(){
+	`ping -c 1 $1.$2.$3.$4 > pingtest1.txt`
+	`cat pingtest1.txt | grep "time=" > 1.txt`
+	#cat 1.txt
+	#[ -s 1.txt ] #Checks whether the file "1.txt" is empty or not. If not empty, it will print a non zero number.
+	if [ `echo $?` == 0 ]
+	then
+	#echo "----------------" > /dev/null
+	echo -e "$1.$2.$3.$4 ------------- UP"
+	else
+	echo -e "$1.$2.$3.$4 ----- DOWN"
+	fi
+}
+
+
+
+
+all(){
+	echo "Scan started........"
+	for (( a=1; a<255; a++ ))
+	do
+		for (( b=1; b<255; b++ ))
+		do
+			for (( c=1; c<255; c++ ))
+			do
+				for (( d=1; d<255; d++ ))
+				do
+					pingip $a $b $c $d
+				done
+			done
+		done
+	done
+}
+
+
+classa(){
+	for (( b=1; b<255; b++ ))
+		do
+			for (( c=1; c<255; c++ ))
+			do
+				for (( d=1; d<255; d++ ))
+				do
+					pingip $1 $b $c $d
+				done
+			done
+		done
+}
+
+classb(){
+		for (( c=1; c<255; c++ ))
+		do
+			for (( d=1; d<255; d++ ))
+			do
+				pingip $1 $2 $c $d
+			done
+		done
+}
+
+
+classc(){
+		for ((d=1; d < 255 ;d++))
+		do
+			pingip $1 $2 $3 $d
+		done
+}
+
+
+if [[ ${a[1]} -gt 255 || ${a[2]} -gt 255 || ${a[3]} -gt 255 || ${a[4]} -gt 255 ]]
+then
+	echo "Please enter valid IP/Network address"
+	exit 1
+
+elif [[ ${a[5]} ]]
+then
+	echo "Too many values"
+	exit 1
+
+elif [[ -z ${a[4]} ]]          #------ "-z" checks if a variable is empty-------
+then
+	echo "Seems not to be an ip address"
+	exit 1
+
+
+elif [[ ${a[1]} == 0 && ${a[2]} == 0 && ${a[3]} == 0 && ${a[4]} == 0 ]]
+then
+	all
+
+elif [[ ${a[1]} != 0 && ${a[2]} == 0 && ${a[3]} == 0 && ${a[4]} == 0 ]]
+then
+	classa ${a[1]} ${a[2]} ${a[3]} ${a[4]}
+
+elif [[ ${a[1]} != 0 && ${a[2]} != 0 && ${a[3]} == 0 && ${a[4]} == 0 ]]
+then
+	classb ${a[1]} ${a[2]} ${a[3]} ${a[4]}
+
+elif [[ ${a[1]} != 0 && ${a[2]} != 0 && ${a[3]} != 0 && ${a[4]} == 0 ]]
+then	
+	classc ${a[1]} ${a[2]} ${a[3]} ${a[4]}
+
+elif [[ ${a[1]} != 0 && ${a[2]} != 0 && ${a[3]} != 0 && ${a[4]} != 0 ]]
+then
+	pingip ${a[1]} ${a[2]} ${a[3]} ${a[4]}
+
+else
+	echo "Please enter valid IP/Network addresss"
+	exit 1
+fi
