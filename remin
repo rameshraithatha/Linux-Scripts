@@ -1,0 +1,112 @@
+#!/bin/bash
+
+
+
+###############################################################################
+#-------------------- remin (Remote Installation) 1.0 ------------------------#
+#Created by : Ramesh Raithatha 						      #
+#				                                              #
+#Date : 10th October, 2012                                                    #
+#                                                                             #
+#Description : This bash script runs the provided commands on the host        #
+#computer using ssh						              #
+#                                                                             #
+#USE : remin -u user_name -p -i IP_Address -c command(s)                      #
+#                                                                             #
+#Example : remin -u ramesh -p -i 192.168.56.1 -i apt-get update               #
+#                                                                             #
+###############################################################################
+
+
+
+
+
+for (( i=1; i<=$# ;i++ ))
+do
+	if [[ ${!i} == "-p" ]]
+	then
+		j=`expr $i + 1`
+		pass=${!j}
+	elif [[ ${!i} == "-u" ]]
+	then
+		j=`expr $i + 1`
+		user=${!j}
+	elif [[ ${!i} == "-i" ]]
+	then
+		j=`expr $i + 1`
+		ip=${!j}
+	elif [[ ${!i} == "-c" ]]
+	then
+		j=`expr $i + 1`
+		commands=${!j}
+	else 
+		echo > /dev/null
+	fi
+done
+	
+
+if [[ $1 == -h || $1 == --help ]]
+	then
+		echo -e "remin (Remote Installation) 1.0 \nUsage: remin {Options}\n-p Password of the user for which you want to perform installation. If this option is kept emptied then you would be asked for the password during runtime.\n-u Username\n-i IP address of the remote host\n-c Commands that should be executed, add "'"&"'" if there are more than one commands."
+		exit
+	fi
+
+
+if [[ -z $pass && -z $ip && -z $commands && -z $user ]]
+then
+	echo -n "Enter User name: "
+	read user
+	echo -n "Password: "
+	read -s pass
+	echo -ne "\nEnter IP address: "
+	read ip
+	echo -n "Enter Command(s) (add "'&'" if there are more than one command): "
+	read commands
+else
+	if [[ -z $pass ]]
+	then
+		echo -n "Password: "
+		read -s pass
+	fi
+	if [[ -z $ip ]]
+	then
+		echo -ne "\nEnter IP address: "
+		read ip
+	fi
+	if [[ -z $user ]]
+	then
+		echo -n "Enter User name: "
+		read user
+	fi
+	if [[ -z $commands ]]
+	then
+		echo -n "Enter Command(s) (add "'&'" if there are more than one command): "
+		read commands
+	fi
+fi
+
+
+
+
+
+
+
+
+`ping -c 1 $ip > .pingtest1.txt`
+
+`cat .pingtest1.txt | grep "Destination Host Unreachable" > .1.txt`
+
+[ -s 1.txt ] #Checks whether the file "1.txt" is empty or not. If not empty, it will print a non zero number.
+
+if [ `echo $?` == 0 ]
+then
+
+`echo "$ip DOWN" >> ip.log`
+#echo "----------------" > /dev/null
+
+else
+
+sshpass -p $pass ssh -o StrictHostKeyChecking=no $user@$ip -t $commands
+
+fi
+
