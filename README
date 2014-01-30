@@ -14,3 +14,7 @@ pingip – This script will ping the provided IP/Network range.
 remin – This script will do a remote installation, provided the IP/network range and commands.
 
 zerofill.sh – This script will fill the hard disk with zero's. It is used to zero fill a hard disk.
+
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/rameshraithatha/linux-scripts/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
